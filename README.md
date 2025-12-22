@@ -3,7 +3,10 @@
 A secure, serverless URL shortener built with AWS Lambda, API Gateway, and DynamoDB. Designed for performance and reliability.
 
 **Created by Salman Younas**  
-[hafizsalman1000@gmail.com](mailto:hafizsalman1000@gmail.com)
+[hafizsalman1000@gmail.com](mailto:hafizsalman1000@gmail.com)  
+[LinkedIn Profile](https://www.linkedin.com/in/salmanyounas1000/)  
+[Portfolio](https://salman-devops-portfolio.s3.ap-northeast-1.amazonaws.com/index.html)
+
 
 ## Features
 
