@@ -90,7 +90,7 @@ function displayShortLink(data) {
 async function copyToClipboard() {
     const shortUrlInput = document.getElementById('shortUrlDisplay');
     const shortUrl = shortUrlInput.value;
-    const copyButton = document.querySelector('.btn-secondary'); // simplified selector
+    const copyButton = document.querySelector('.btn-copy'); // updated selector
 
     if (!shortUrl) return;
 

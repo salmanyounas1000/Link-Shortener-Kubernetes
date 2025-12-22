@@ -1,63 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Shortener | Simple & Secure</title>
+    <title>Serverless Link Shortener</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div class="container">
+    <div class="page-wrapper">
         <header>
-            <div class="logo">🔗 LinkShortener</div>
-            <p class="subtitle">Secure, fast, and reliable URL shortening.</p>
-        </header>
-        
-        <main>
-            <section class="card form-section">
-                <h2>Shorten a Link</h2>
-                <form id="createLinkForm" onsubmit="createShortLink(event)">
-                    <div class="input-group">
-                        <label for="originalUrl" class="sr-only">Original URL</label>
-                        <input 
-                            type="url" 
-                            id="originalUrl" 
-                            name="url" 
-                            placeholder="https://example.com/long-url"
-                            required
-                        >
-                        <button type="submit" class="btn-primary">Shorten</button>
-                    </div>
-                </form>
-            </section>
-            
-            <section class="card result-section" id="resultSection" style="display: none;">
-                <h2>Your Short Link</h2>
-                <div class="short-url-wrapper">
-                    <input type="text" id="shortUrlDisplay" readonly>
-                    <button type="button" class="btn-secondary" onclick="copyToClipboard()">Copy</button>
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">⚡</span>
+                    LinkShortener
                 </div>
-                <div id="linkInfo" class="link-meta"></div>
+                <a href="https://github.com/salmanyounas1000/serverless-Link-shorten-aws" target="_blank"
+                    class="github-link">GitHub Repo</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h1 class="hero-title">Shorten Your Links <br><span class="gradient-text">In Seconds.</span></h1>
+                <p class="hero-subtitle">A secure, serverless URL shortener built for performance.</p>
+
+                <div class="shortener-box">
+                    <form id="createLinkForm" onsubmit="createShortLink(event)">
+                        <div class="input-container">
+                            <input type="url" id="originalUrl" name="url" placeholder="Paste your long URL here..."
+                                required autocomplete="off">
+                            <button type="submit" class="btn-primary">
+                                Shorten <span class="btn-arrow">→</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="loadingIndicator" class="loading-state" style="display: none;">
+                        <div class="spinner"></div> Creating your link...
+                    </div>
+
+                    <div id="errorMessage" class="error-state" style="display: none;"></div>
+
+                    <div id="resultSection" class="result-card" style="display: none;">
+                        <div class="result-header">
+                            <span class="success-icon">✓</span>
+                            <span>Link Created Successfully</span>
+                        </div>
+                        <div class="link-display">
+                            <input type="text" id="shortUrlDisplay" readonly onclick="this.select()">
+                            <button type="button" class="btn-copy" onclick="copyToClipboard()">Copy</button>
+                        </div>
+                        <div id="linkInfo" class="link-meta"></div>
+                    </div>
+                </div>
             </section>
-            
-            <div id="errorMessage" class="error-message" style="display: none;"></div>
-            <div id="loadingIndicator" class="loading" style="display: none;">
-                <div class="spinner"></div> Processing...
-            </div>
         </main>
-        
+
         <footer>
-            <div class="footer-content">
-                <p>Project by <strong>Salman Younas</strong></p>
-                <p><a href="mailto:hafizsalman1000@gmail.com">hafizsalman1000@gmail.com</a></p>
-                <div class="tech-stack">
-                    <span>AWS Lambda</span> • <span>API Gateway</span> • <span>DynamoDB</span> • <span>S3</span>
+            <div class="footer-container">
+                <div class="creator-info">
+                    <h3>Created by Salman Younas</h3>
+                    <div class="social-links">
+                        <a href="mailto:hafizsalman1000@gmail.com" class="social-link">Email</a>
+                        <span class="separator">/</span>
+                        <a href="https://github.com/salmanyounas1000" target="_blank" class="social-link">GitHub</a>
+                        <span class="separator">/</span>
+                        <a href="https://www.linkedin.com/in/salmanyounas1000/" target="_blank"
+                            class="social-link">LinkedIn</a>
+                        <span class="separator">/</span>
+                        <a href="https://salman-devops-portfolio.s3.ap-northeast-1.amazonaws.com/index.html"
+                            target="_blank" class="social-link">Portfolio</a>
+                    </div>
+                </div>
+                <div class="tech-badge">
+                    <span>Powered by AWS Serverless</span>
                 </div>
             </div>
         </footer>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
+
 </html>
