@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Shortener | Simple & Secure</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🔗 LinkShortener</div>
+            <p class="subtitle">Secure, fast, and reliable URL shortening.</p>
+        </header>
+        
+        <main>
+            <section class="card form-section">
+                <h2>Shorten a Link</h2>
+                <form id="createLinkForm" onsubmit="createShortLink(event)">
+                    <div class="input-group">
+                        <label for="originalUrl" class="sr-only">Original URL</label>
+                        <input 
+                            type="url" 
+                            id="originalUrl" 
+                            name="url" 
+                            placeholder="https://example.com/long-url"
+                            required
+                        >
+                        <button type="submit" class="btn-primary">Shorten</button>
+                    </div>
+                </form>
+            </section>
+            
+            <section class="card result-section" id="resultSection" style="display: none;">
+                <h2>Your Short Link</h2>
+                <div class="short-url-wrapper">
+                    <input type="text" id="shortUrlDisplay" readonly>
+                    <button type="button" class="btn-secondary" onclick="copyToClipboard()">Copy</button>
+                </div>
+                <div id="linkInfo" class="link-meta"></div>
+            </section>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="loadingIndicator" class="loading" style="display: none;">
+                <div class="spinner"></div> Processing...
+            </div>
+        </main>
+        
+        <footer>
+            <div class="footer-content">
+                <p>Project by <strong>Salman Younas</strong></p>
+                <p><a href="mailto:hafizsalman1000@gmail.com">hafizsalman1000@gmail.com</a></p>
+                <div class="tech-stack">
+                    <span>AWS Lambda</span> • <span>API Gateway</span> • <span>DynamoDB</span> • <span>S3</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
