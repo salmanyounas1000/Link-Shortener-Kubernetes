@@ -1,59 +1,101 @@
-# Simple Link Shortener
+# URL Shortener Application
 
-A secure, serverless URL shortener built with AWS Lambda, API Gateway, and DynamoDB. Designed for performance and reliability.
+A modern, fast, and secure URL shortener built with Python (FastAPI) on the backend and pure HTML/CSS/JavaScript on the frontend. The application uses PostgreSQL for data storage and is fully containerized using Docker, making it ready for Kubernetes deployment.
 
-**Created by Salman Younas**  
-[hafizsalman1000@gmail.com](mailto:hafizsalman1000@gmail.com)  
-[LinkedIn Profile](https://www.linkedin.com/in/salmanyounas1000/)  
-[Portfolio](https://salman-devops-portfolio.s3.ap-northeast-1.amazonaws.com/index.html)
+## Architecture
 
+This project is separated into two microservices, managed locally via Docker Compose:
 
-## Features
+1. **Frontend**: A static single-page application served via Nginx. It features a modern, responsive UI with glassmorphism effects without relying on any CSS frameworks like Tailwind or Bootstrap.
+2. **Backend**: A REST API built with FastAPI, interacting with a PostgreSQL database via SQLAlchemy and Alembic.
 
-- **Serverless Architecture**: 100% serverless using AWS Lambda.
-- **High Performance**: Direct DynamoDB integration for low latency.
-- **Secure**:
-  - **Creation Limit**: 1 IP can only create 10 links per month.
-  - **Usage Limit**: Each link is limited to 20 redirects per month to prevent cost overruns (DDoS protection layer).
-- **Clean UI**: Modern, dark-themed interface similar to Vercel/Next.js.
-
-## Tech Stack
-
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript (hosted on S3).
-- **Backend**: Python 3.9 (AWS Lambda).
-- **Database**: AWS DynamoDB.
-- **API**: AWS API Gateway (REST API).
-- **CI/CD**: GitHub Actions.
-
-## Project Structure
-
-```
-├── .github/workflows/   # CI/CD Pipelines
-├── docs/                # Documentation
-├── src/
-│   ├── backend/         # Lambda Functions
-│   │   ├── create_link/ # Link Creation Logic
-│   │   └── redirect/    # Redirection Logic
-│   └── frontend/        # Static Website
+### Folder Structure
+```text
+.
+├── backend/
+│   ├── alembic/            # Database migrations
+│   ├── app/                # Application source code
+│   │   ├── main.py         # Entry point
+│   │   ├── config.py       # Environment variables setup
+│   │   ├── database.py     # SQLAlchemy setup
+│   │   ├── models.py       # Database models
+│   │   ├── schemas.py      # Pydantic validation schemas
+│   │   ├── routers/        # API route definitions
+│   │   └── services/       # Business logic (URL generation, etc.)
+│   ├── Dockerfile
+│   ├── entrypoint.sh       # Script to run migrations before startup
+│   └── requirements.txt
+├── frontend/
+│   ├── index.html          # Main HTML structure
+│   ├── style.css           # Custom modern CSS
+│   ├── script.js           # Fetch API logic
+│   ├── nginx.conf          # Nginx routing configuration
+│   └── Dockerfile
+├── docker-compose.yml      # Local orchestration
+└── README.md
 ```
 
-## Security & Limits
+## How to Run Locally
 
-To prevent abuse and manage costs (Free Tier eligibility), the following limits are enforced:
+Prerequisites: Make sure you have [Docker](https://www.docker.com/) and Docker Compose installed on your machine.
 
-1.  **Rate Limiting**: Users are limited to creating **10 links per month** per IP address.
-2.  **Access Limiting**: Each generated link allows **20 redirects per month**.
-3.  **DDoS Protection**: Basic application-level rate limiting is implemented. For production environments, AWS WAF is recommended.
+1. **Start the Application**
+   Run the following command at the root of the project:
+   ```bash
+   docker compose up -d --build
+   ```
 
-## Deployment
+2. **Access the Services**
+   - **Frontend UI**: [http://localhost:8080](http://localhost:8080)
+   - **Backend API**: [http://localhost:8000](http://localhost:8000)
+   - **Interactive API Docs (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-This project uses **GitHub Actions** for CI/CD.
+3. **Stop the Application**
+   To stop the containers and remove the networks:
+   ```bash
+   docker compose down
+   ```
+   *Note: Add `-v` if you also want to delete the PostgreSQL data volume.*
 
-1.  Push to `main` branch triggers the deployment pipeline.
-2.  The pipeline deploys backend code to AWS Lambda and frontend code to S3.
+## API Endpoints
 
-For manual deployment instructions, see `docs/CI_CD_GUIDE.md`.
+### 1. Create a Short URL
+- **Endpoint:** `POST /api/shorten`
+- **Body:**
+  ```json
+  {
+      "url": "https://example.com"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+      "short_url": "http://localhost:8000/aB3dE5"
+  }
+  ```
 
-## License
+### 2. Redirect to Original URL
+- **Endpoint:** `GET /{short_code}`
+- **Description:** Redirects the user to the original URL (HTTP 302).
+- **Error:** Returns 404 JSON if the code does not exist.
 
-Private Project. All rights reserved.
+### 3. Health Check
+- **Endpoint:** `GET /health`
+- **Response:**
+  ```json
+  {
+      "status": "ok"
+  }
+  ```
+
+## Environment Variables
+
+Configuration is handled entirely through environment variables. Defaults are provided in the `docker-compose.yml` for local development.
+
+- `DB_HOST`: Hostname of the PostgreSQL database.
+- `DB_PORT`: Port of the PostgreSQL database.
+- `DB_USER`: Database username.
+- `DB_PASSWORD`: Database password.
+- `DB_NAME`: Name of the database to use.
+
+These can be effortlessly overridden when deploying to a self-managed Kubernetes cluster using ConfigMaps and Secrets.

@@ -1,0 +1,65 @@
+# version batata hai k docker-compose ka konsa format use ho raha hai
+version: '3.8'
+
+# services k andar hum apne sare containers define karte hain (jaise db, backend, frontend)
+services:
+
+  # 1. DATABASE SERVICE
+  db:
+    # Konsa image use karna hai? Yahan hum official postgres ka halka phulka (alpine) version use kar rahe hain
+    image: postgres:15-alpine
+    # Environment variables pass kar rahe hain taake postgres apna user aur password set kare
+    environment:
+      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pass}
+      POSTGRES_DB: ${DB_NAME:-db}
+    # Volumes use hote hain data save rakhne k liye. Agar container delete bhi ho jaye, to data mehfooz rahega
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Healthcheck check karta hai k kya database completely start ho gaya hai? (Taa k backend tabhi connect kare jab DB ready ho)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. BACKEND SERVICE (Python FastAPI)
+  backend:
+    # "build" docker compose ko batata hai k iska image kahan se banana hai.
+    # context: ./backend ka matlab hai k backend folder mein jao aur wahan jo Dockerfile hai use run karo
+    build:
+      context: ./backend
+    # Ports map karte hain: "HostPort:ContainerPort".
+    # Yahan humne 8001:8000 kar diya hai taake aapke Mac ka port 8001 backend se connect ho. 
+    # (Pehle 8000 tha jo k aapke computer par pehle se kisi aur cheez ne block kiya hua tha)
+    ports:
+      - "8001:8000"
+    # Ye environment variables backend python app mein jayenge
+    environment:
+      # DB_HOST mein humne container ka naam 'db' likha hai. Docker automatically isko connect kar dega!
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-user}
+      DB_PASSWORD: ${DB_PASSWORD:-pass}
+      DB_NAME: ${DB_NAME:-db}
+    # depends_on se hum batate hain k pehle konsa container start hona chahiye.
+    # Yahan backend tab tak start nahi hoga jab tak db "healthy" na ho jaye (oper healthcheck dekhein)
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 3. FRONTEND SERVICE (HTML/CSS)
+  frontend:
+    # Frontend ka image ./frontend folder ki Dockerfile se banega
+    build:
+      context: ./frontend
+    # Isko hum 8080 port par chala rahe hain. (Host 8080 ko container k 80 par map kiya)
+    ports:
+      - "8080:80"
+    # Frontend backend k baad start hoga
+    depends_on:
+      - backend
+
+# Ye wo volume hai jo humne line 11 par use kiya tha data safe rakhne k liye
+volumes:
+  postgres_data:
