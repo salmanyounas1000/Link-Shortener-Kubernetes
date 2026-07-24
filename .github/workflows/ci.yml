@@ -1,0 +1,141 @@
+name: CI Pipeline
+
+# 1. Trigger on push to main and pull requests to main
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+# Define registry for pushing Docker images
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # Job to detect changes in specific directories
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      # 2. Detect changes separately for backend and frontend
+      - name: Paths Filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  # 3. Job to build and push backend if changes detected
+  build-backend:
+    name: Build & Push Backend
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
+    # Permissions required to authenticate and push to GHCR using GITHUB_TOKEN
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 7. Use Docker Buildx for advanced capabilities and caching
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 6. Authenticate using the automatically provided GitHub Token
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Create an environment variable with the lowercased repository name 
+      # (Docker registry does not allow uppercase characters in image names)
+      - name: Lowercase Repository Name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      # Automatically generate tags for Git SHA and latest
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.REPO }}-backend
+          tags: |
+            type=raw,value=${{ github.sha }}
+            type=raw,value=latest
+
+      # 8. Build backend image, tag it, push it, and utilize GHA caching
+      - name: Build and push Backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # 4. Job to build and push frontend if changes detected
+  build-frontend:
+    name: Build & Push Frontend
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Authenticate using the GitHub Token
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Lowercase the repository name
+      - name: Lowercase Repository Name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      # Generate tags (Git SHA and latest)
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.REPO }}-frontend
+          tags: |
+            type=raw,value=${{ github.sha }}
+            type=raw,value=latest
+
+      # Build frontend image, push it, and utilize caching
+      - name: Build and push Frontend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
