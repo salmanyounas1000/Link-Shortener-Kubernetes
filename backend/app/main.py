@@ -4,6 +4,7 @@ from app.routers import url
 
 app = FastAPI(title="URL Shortener API")
 
+# Added a comment to trigger GitHub Actions CI Pipeline for the Backend
 # Setup CORS for frontend
 app.add_middleware(
     CORSMiddleware,
