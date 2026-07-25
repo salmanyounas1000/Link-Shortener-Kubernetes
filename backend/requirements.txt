@@ -5,3 +5,8 @@ psycopg2-binary==2.9.9
 pydantic==2.6.1
 pydantic-settings==2.1.0
 alembic==1.13.1
+
+
+
+
+#testing trigger
