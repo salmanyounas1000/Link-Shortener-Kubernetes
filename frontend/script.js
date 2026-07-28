@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8001'; // Make sure this matches backend port
+const API_BASE_URL = ''; // Relative URL used so Ingress can route /api requests to the backend automatically
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('shorten-form');
