@@ -1,0 +1,30 @@
+# Kubernetes API version
+apiVersion: v1
+
+# Backend Service
+kind: Service
+
+metadata:
+
+  # Service ka naam
+  name: backend-service
+
+  # Namespace
+  namespace: url-shortener
+
+spec:
+
+  # Ye Service backend pods ko traffic degi
+  selector:
+    app: backend
+
+  ports:
+
+    # Cluster ke andar service port
+    - port: 8000
+
+      # Container port
+      targetPort: 8000
+
+  # Sirf cluster ke andar accessible
+  type: ClusterIP

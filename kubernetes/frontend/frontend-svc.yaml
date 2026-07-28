@@ -1,0 +1,28 @@
+# Kubernetes API ka version Services k liye
+apiVersion: v1
+
+# Is resource ki kism "Service" hai (ye Pods k aage ek pakka IP address aur load balancer bana deta hai)
+kind: Service
+
+metadata:
+  # Service ka naam (Is naam k zariye cluster mein doosri cheezein is se baat kar sakti hain, maslan ingress)
+  name: frontend-service
+  
+  # Namespace jahan ye service banegi
+  namespace: url-shortener
+
+spec:
+  # Selector service ko batata hai k traffic kin Pods par bhejna hai
+  selector:
+    app: frontend # Ye label hamari frontend-deployment k pods k paas hai
+
+  ports:
+    # Ye wo port hai jis par Service khud traffic sune gi
+    - port: 80
+      
+      # Ye wo port hai jis par Service traffic Pod (Container) ko aage bhej degi
+      targetPort: 80
+
+  # ClusterIP ka matlab hai k ye service sirf Kubernetes cluster k andar se access ki ja sakti hai, direct bahar se nahi.
+  # (Bahar se access karne k liye Ingress use hoga jo is ClusterIP par traffic bhejega)
+  type: ClusterIP

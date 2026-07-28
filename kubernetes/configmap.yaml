@@ -1,0 +1,51 @@
+# Kubernetes API version
+apiVersion: v1
+
+# Ye ConfigMap object hai
+kind: ConfigMap
+
+metadata:
+
+  # ConfigMap ka naam
+  name: app-config
+
+  # Ye ConfigMap kis namespace mein banegi
+  namespace: url-shortener
+
+# Yahan sirf non-sensitive values rakhen
+# Passwords aur API Keys Secret mein jayengi
+
+data:
+
+  ##################################################
+  # PostgreSQL Configuration
+  ##################################################
+
+  # Database ka naam
+  POSTGRES_DB: urlshortener
+
+  # PostgreSQL user
+  #POSTGRES_USER: postgres
+
+  ##################################################
+  # Backend Configuration
+  ##################################################
+
+  # Backend database kis service se connect karega
+  DB_HOST: postgres-service
+
+  # PostgreSQL ka port
+  DB_PORT: "5432"
+
+  # Backend kis database se connect karega
+  DB_NAME: urlshortener
+
+  ##################################################
+  # Frontend Configuration
+  ##################################################
+
+  # Backend API ka internal service address
+  API_URL: http://backend-service:8000
+
+  # Application environment
+  APP_ENV: production

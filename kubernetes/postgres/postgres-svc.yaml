@@ -1,0 +1,33 @@
+# Kubernetes API
+apiVersion: v1
+
+# Service object
+kind: Service
+
+metadata:
+
+  # Service ka naam
+  name: postgres-service
+
+  # Namespace
+  namespace: url-shortener
+
+spec:
+
+  # Ye Service sirf un Pods ko traffic degi
+  # jin pe app=postgres label hoga
+  selector:
+
+    app: postgres
+
+  ports:
+
+    # Cluster ke andar Service kis port pe available hogi
+    - port: 5432
+
+      # Traffic Pod ke kis port pe bhejna hai
+      targetPort: 5432
+
+  # Sirf cluster ke andar access hogi
+  # Bahar se koi direct access nahi
+  type: ClusterIP

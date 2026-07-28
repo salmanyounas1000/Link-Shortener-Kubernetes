@@ -1,0 +1,65 @@
+# Kubernetes API ka version jo Deployments k liye use hota hai
+apiVersion: apps/v1
+
+# Is resource ki kism "Deployment" hai (ye pods ko manage karega aur unki tadad maintain karega)
+kind: Deployment
+
+metadata:
+  # Deployment ka apna naam
+  name: frontend-deployment
+  
+  # Ye kis namespace mein banega
+  namespace: url-shortener
+
+spec:
+  # Replicas ka matlab hai k frontend k kitne Pods (containers) aik waqt mein chalne chahiye
+  replicas: 1
+  
+  # Selector Kubernetes ko batata hai k is deployment k andar kon kon se pods aayenge
+  selector:
+    matchLabels:
+      app: frontend # Ye label neechay template mein diye gaye label se match hona chahiye
+
+  # Template wo hissa hai jo define karta hai k Pod kaisa banega
+  template:
+    metadata:
+      # Har pod ko ye label lag jayega taake Service aur Deployment isko pehchan sakein
+      labels:
+        app: frontend
+        
+    spec:
+      # Pod k andar kon konse containers chalenge
+      containers:
+        - name: frontend-container
+          
+          # Ye wo image hai jo humari GitHub Actions pipeline ne build kar k GHCR par push ki thi
+          image: ghcr.io/salmanyounas1000/serverless-link-shorten-aws-frontend:latest
+          
+          # Always ka matlab hai k Kubernetes hamesha latest image pull karne ki koshish karega
+          imagePullPolicy: Always
+          
+          # Frontend container kis port par traffic sune ga (Nginx default 80 par sunta hai)
+          ports:
+            - containerPort: 80
+          
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"

@@ -1,0 +1,135 @@
+# Deployment apps API ka part hai
+apiVersion: apps/v1
+
+# Hum Backend ke liye Deployment bana rahe hain
+kind: Deployment
+
+metadata:
+
+  # Deployment ka naam
+  name: backend
+
+  # Namespace
+  namespace: url-shortener
+
+spec:
+
+  # Abhi ek hi backend pod chalayenge
+  replicas: 1
+
+  # Deployment sirf app=backend label wale pods manage karega
+  selector:
+    matchLabels:
+      app: backend
+
+  # Ye pod ka template hai
+  template:
+
+    metadata:
+      labels:
+        app: backend
+
+    spec:
+
+      containers:
+
+        # Container ka naam
+        - name: backend
+
+          # Github Container Registry image
+          # Isay apni actual image se replace kar dena
+          image: ghcr.io/salmanyounas1000/serverless-link-shorten-aws-backend:latest
+
+          #command: ["sleep"]
+          #args: ["3600"]
+
+
+          # Hamesha latest image pull kare
+          imagePullPolicy: Always
+
+          ports:
+
+            # FastAPI container port
+            - containerPort: 8000
+
+          env:
+
+            #################################################
+            # ConfigMap
+            #################################################
+
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DB_HOST
+
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DB_PORT
+
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DB_NAME
+
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: APP_ENV
+
+            #################################################
+            # Secret
+            #################################################
+
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: POSTGRES_USER
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: POSTGRES_PASSWORD
+
+          #################################################
+          # Health Checks
+          #################################################
+
+          readinessProbe:
+
+            httpGet:
+              path: /health
+              port: 8000
+
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          livenessProbe:
+
+            httpGet:
+              path: /health
+              port: 8000
+
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          #################################################
+          # Resource Limits
+          #################################################
+
+          resources:
+
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+            limits:
+              cpu: 500m
+              memory: 512Mi

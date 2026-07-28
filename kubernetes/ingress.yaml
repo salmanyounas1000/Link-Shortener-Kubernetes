@@ -1,0 +1,42 @@
+# Kubernetes API version
+apiVersion: networking.k8s.io/v1
+
+# Resource type
+kind: Ingress
+
+metadata:
+  # Ingress ka naam
+  name: url-shortener-ingress
+
+  # Namespace
+  namespace: url-shortener
+
+spec:
+  # Is Ingress ko NGINX Controller handle karega
+  ingressClassName: nginx
+
+  rules:
+    - host: project.salmandevops.dpdns.org
+
+      http:
+        paths:
+
+          # Frontend
+          - path: /
+            pathType: Prefix
+
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80
+
+          # Backend API
+          - path: /api
+            pathType: Prefix
+
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 8000
