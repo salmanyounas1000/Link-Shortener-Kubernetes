@@ -7,24 +7,31 @@ kind: Ingress
 metadata:
   # Ingress ka naam
   name: url-shortener-ingress
-
+  
   # Namespace
   namespace: url-shortener
+
+  # NAYI CHEEZ: Ye annotation cert-manager ko trigger karegi
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
 spec:
   # Is Ingress ko NGINX Controller handle karega
   ingressClassName: nginx
 
+  # NAYI CHEEZ: TLS (HTTPS) ki configuration
+  tls:
+    - hosts:
+        - project.salmandevops.dpdns.org
+      secretName: url-shortener-tls  # Is naam ka secret cert-manager khud banayega
+
   rules:
     - host: project.salmandevops.dpdns.org
-
       http:
         paths:
-
           # Frontend
           - path: /
             pathType: Prefix
-
             backend:
               service:
                 name: frontend-service
@@ -34,7 +41,6 @@ spec:
           # Backend API
           - path: /api
             pathType: Prefix
-
             backend:
               service:
                 name: backend-service
