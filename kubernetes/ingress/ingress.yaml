@@ -11,15 +11,19 @@ metadata:
   # Namespace
   namespace: url-shortener
 
-  # NAYI CHEEZ: Ye annotation cert-manager ko trigger karegi
+  # Ye annotations do kaam karti hain:
+  # 1. cert-manager ko batati hain certificate kis issuer se lena hai
+  # 2. NGINX ko HTTP se HTTPS redirect enforce karne ko kehti hain
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 
 spec:
   # Is Ingress ko NGINX Controller handle karega
   ingressClassName: nginx
 
-  # NAYI CHEEZ: TLS (HTTPS) ki configuration
+  # TLS block me host aur secretName match hone chahiye
+  # cert-manager isi host ke liye certificate issue karke ye secret banayega
   tls:
     - hosts:
         - project.salmandevops.dpdns.org

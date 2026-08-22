@@ -17,9 +17,22 @@ spec:
     metadata:
       labels:
         app: postgres
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "url-shortener"
+        vault.hashicorp.com/agent-inject-secret-username: "secret/data/database"
+        vault.hashicorp.com/agent-inject-template-username: |
+          {{- with secret "secret/data/database" -}}
+          {{ .Data.data.POSTGRES_USER }}
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-secret-password: "secret/data/database"
+        vault.hashicorp.com/agent-inject-template-password: |
+          {{- with secret "secret/data/database" -}}
+          {{ .Data.data.POSTGRES_PASSWORD }}
+          {{- end -}}
 
     spec:
-
+      serviceAccountName: url-shortener-sa
       containers:
         - name: postgres
 
@@ -36,17 +49,11 @@ spec:
                   name: app-config
                   key: POSTGRES_DB
 
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: secret
-                  key: POSTGRES_USER
+            - name: POSTGRES_USER_FILE
+              value: "/vault/secrets/username"
 
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: secret
-                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_PASSWORD_FILE
+              value: "/vault/secrets/password"
 
           volumeMounts:
             - name: postgres-storage

@@ -41,3 +41,5 @@ dist/
 .vscode/
 *.swp
 *.swo
+*configmap*.yaml
+*configmap*.yml
