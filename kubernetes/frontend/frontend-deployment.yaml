@@ -13,7 +13,7 @@ metadata:
 
 spec:
   # Replicas ka matlab hai k frontend k kitne Pods (containers) aik waqt mein chalne chahiye
-  replicas: 1
+  replicas: 3
   
   # Selector Kubernetes ko batata hai k is deployment k andar kon kon se pods aayenge
   selector:
