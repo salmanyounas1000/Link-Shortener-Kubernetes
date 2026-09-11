@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  # Adding a new local user 'ali' with UI login and API key access
+  accounts.ali: login, apiKey
