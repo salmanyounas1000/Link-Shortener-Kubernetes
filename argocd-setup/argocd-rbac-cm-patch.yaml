@@ -2,7 +2,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: argocd-rbac-cm
-  namespace: argocd
 data:
   # Assigning readonly role to user 'ali'
   policy.csv: |
